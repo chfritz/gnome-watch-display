@@ -31,7 +31,7 @@ const ExampleIndicator = class ExampleIndicator extends PanelMenu.Button {
   _monitor() {
     // mylog('running command', CMD);
     // https://gjs-docs.gnome.org/glib20~2.64.1/glib.spawn_async
-    const res = GLib.spawn_command_line_sync(`bash -c "${CMD}"`);
+    const res = GLib.spawn_command_line_sync(`bash -c "${CMD.replace(/"/g, '\\"')}"`);
     const resText = byteArrayToString(res[1])
         .toString()
         .split('\n')

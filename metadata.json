@@ -4,5 +4,6 @@
   "uuid": "watch_display@christian.fritz.gmail.com",
   "shell-version": ["3.28.4"],
   "settings-schema": "org.gnome.shell.extensions.watchdisplay",
-  "version": "0.1.0"
+  "version": "0.1.1",
+  "url": "https://github.com/chfritz/gnome-watch-display"
 }
