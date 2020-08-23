@@ -1,0 +1,15 @@
+<schemalist>
+  <schema id="org.gnome.shell.extensions.watchdisplay"
+    path="/org/gnome/shell/extensions/watch_display/">
+    <key name="command" type="s">
+      <default>'date'</default>
+      <summary>Shell Command</summary>
+      <description>Shell command to run.</description>
+    </key>
+    <key name="refresh-interval" type="i">
+      <default>300</default>
+      <summary>Refresh interval in seconds</summary>
+      <description>Refresh interval in seconds.</description>
+    </key>
+  </schema>
+</schemalist>

@@ -1,0 +1,8 @@
+{
+  "name": "Watch Display",
+  "description": "A simple monitoring tool that works like the watch command but displays the result in the panel.",
+  "uuid": "watch_display@christian.fritz.gmail.com",
+  "shell-version": ["3.28.4"],
+  "settings-schema": "org.gnome.shell.extensions.watchdisplay",
+  "version": "0.1.0"
+}
