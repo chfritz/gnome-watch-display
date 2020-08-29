@@ -1,4 +1,4 @@
-zip -r watch_display@christian.fritz.gmail.com.zip * --exclude pack.sh --exclude LICENSE --exclude README.md
+zip -r watch_display.zip * --exclude pack.sh --exclude LICENSE --exclude README.md
 
 
 #### Notes to self
