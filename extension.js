@@ -31,8 +31,9 @@ const ExampleIndicator = class ExampleIndicator extends PanelMenu.Button {
 
   _monitor() {
 
-    mylog('running command', CMD);
+    // mylog('running command', CMD);
     // https://gjs-docs.gnome.org/glib20~2.64.1/glib.spawn_async
+
     // const res = GLib.spawn_command_line_sync(`bash -c "${CMD.replace(/"/g, '\\"')}"`);
     // const resText = byteArrayToString(res[1])
     //     .toString()
@@ -40,41 +41,37 @@ const ExampleIndicator = class ExampleIndicator extends PanelMenu.Button {
     //     .filter(line => line != '')
     //     .join('; ');
     // this.label.set_text(resText);
+    // ^^ No, don't do this. It blocks the entire gnome-shell!
 
+    // must be async:
+    // https://gjs-docs.gnome.org/glib20~2.64.1/glib.spawn_async_with_pipes
     const [res, pid, in_fd, out_fd, err_fd] = GLib.spawn_async_with_pipes(
-      null, // '/'
-      ['/bin/bash', '-c', `${CMD.replace(/"/g, '\\"')}`],
-      // CMD.replace(/"/g, '\\"').split(' '),
-      // ['/bin/echo', 'test'],
       null,
-      0, //GLib.SpawnFlags.SEARCH_PATH,
-      null, //function() {}
+      ['/bin/bash', '-c', `${CMD.replace(/"/g, '\\"')}`],
+      null,
+      0,
+      null,
     );
 
     out_reader = new Gio.DataInputStream({
       base_stream: new Gio.UnixInputStream({fd: out_fd})
     });
-    // out_reader = new Gio.UnixInputStream({fd: out_fd});
-    const [out, size] = out_reader.read_line(null);
-    mylog('out', out);
 
-    const resText = out && out.toString()
-        .split('\n')
-        .filter(line => line != '')
-        .join('; ');
-    this.label.set_text(resText || '');
+    // Need to also read the result async, else this blocks.
+    // https://gjs-docs.gnome.org/gio20~2.64p/gio.datainputstream#method-read_line_async
+    const self = this;
+    out_reader.read_line_async(0, null, function(r, t) {
+      const [out, _] = r.read_line_finish(t);
+      // mylog('out', out);
+      const resText = out && out.toString()
+          .split('\n')
+          .filter(line => line != '')
+          .join('; ');
+      self.label.set_text(resText || '');
 
-    // let pollFD = new GLib.PollFD({
-    //   fd: res[3],
-    //   events: GLib.IOCondition.IN,
-    //   revents: GLib.IOCondition.IN
-    // });
-    // mylog('res', res, pollFD);
-
-    // const o = Gio.InputStream.new(res[3]);
-
-    this.timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
-        interval_seconds * 1e3, this._monitor.bind(this));
+      self.timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
+          interval_seconds * 1e3, self._monitor.bind(self));
+    });
   }
 
   reloadSetting() {
