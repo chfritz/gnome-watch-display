@@ -21,3 +21,6 @@ zip -r watch_display.zip * --exclude pack.sh --exclude LICENSE --exclude README.
 # often it's easier to run
 # gnome-shell-extension-tool -d watch_display@christian.fritz.gmail.com
 # after reloading the shell, to only see errors from this extension
+
+
+# /home/cfritz/common/watch/index.js

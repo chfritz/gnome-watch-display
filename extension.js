@@ -25,19 +25,53 @@ const mylog = (...args) => {
 
 let CMD = 'date';
 let interval_seconds = 3;
+let out_reader;
 
 const ExampleIndicator = class ExampleIndicator extends PanelMenu.Button {
 
   _monitor() {
-    // mylog('running command', CMD);
+
+    mylog('running command', CMD);
     // https://gjs-docs.gnome.org/glib20~2.64.1/glib.spawn_async
-    const res = GLib.spawn_command_line_sync(`bash -c "${CMD.replace(/"/g, '\\"')}"`);
-    const resText = byteArrayToString(res[1])
-        .toString()
+    // const res = GLib.spawn_command_line_sync(`bash -c "${CMD.replace(/"/g, '\\"')}"`);
+    // const resText = byteArrayToString(res[1])
+    //     .toString()
+    //     .split('\n')
+    //     .filter(line => line != '')
+    //     .join('; ');
+    // this.label.set_text(resText);
+
+    const [res, pid, in_fd, out_fd, err_fd] = GLib.spawn_async_with_pipes(
+      null, // '/'
+      ['/bin/bash', '-c', `${CMD.replace(/"/g, '\\"')}`],
+      // CMD.replace(/"/g, '\\"').split(' '),
+      // ['/bin/echo', 'test'],
+      null,
+      0, //GLib.SpawnFlags.SEARCH_PATH,
+      null, //function() {}
+    );
+
+    out_reader = new Gio.DataInputStream({
+      base_stream: new Gio.UnixInputStream({fd: out_fd})
+    });
+    // out_reader = new Gio.UnixInputStream({fd: out_fd});
+    const [out, size] = out_reader.read_line(null);
+    mylog('out', out);
+
+    const resText = out && out.toString()
         .split('\n')
         .filter(line => line != '')
         .join('; ');
-    this.label.set_text(resText);
+    this.label.set_text(resText || '');
+
+    // let pollFD = new GLib.PollFD({
+    //   fd: res[3],
+    //   events: GLib.IOCondition.IN,
+    //   revents: GLib.IOCondition.IN
+    // });
+    // mylog('res', res, pollFD);
+
+    // const o = Gio.InputStream.new(res[3]);
 
     this.timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
         interval_seconds * 1e3, this._monitor.bind(this));
